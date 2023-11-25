@@ -18,7 +18,25 @@ import torchvision
 import matplotlib.pyplot as plt
 import cv2
 import sys
-from segment_anything import  sam_model_registry, SamAutomaticMaskGenerator, SamPredictor
+from segment_anything import sam_model_registry, SamAutomaticMaskGenerator, SamPredictor
+
+def calculate_iou(mask1, mask2):
+    """
+    Calculate Intersection over Union (IoU) between two binary masks.
+
+    Parameters:
+    - mask1: NumPy array, first binary mask (True/False).
+    - mask2: NumPy array, second binary mask (True/False).
+
+    Returns:
+    - IoU: Intersection over Union score.
+    """
+    intersection = np.logical_and(mask1, mask2)
+    union = np.logical_or(mask1, mask2)
+
+    IoU = np.sum(intersection) / np.sum(union)
+    return IoU
+
 def print_resources_info():
     print("PyTorch version:",torch.__version__)
     print("Torchvision version ",torchvision.__version__)
@@ -90,10 +108,12 @@ if __name__ == '__main__':
     for i, (mask, score) in enumerate(zip(masks, scores)):
         plt.figure(figsize=(10, 10))
         plt.imshow(image)
+        IoU = calculate_iou(mask, mask)
         show_mask(mask, plt.gca())
         show_points(input_point, input_label, plt.gca())
-        plt.title(f"Mask {i + 1}, Score: {score:.3f}", fontsize=18)
+        plt.title(f"Mask {i + 1}, Score: {score:.3f} - IoU: {IoU}", fontsize=18)
         plt.axis('off')
         plt.show()
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
